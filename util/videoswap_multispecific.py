@@ -108,7 +108,7 @@ def video_swap(video_path, target_id_norm_list,source_specific_id_nonorm_list,id
 
                 if len(swap_result_list) !=0:
                     
-                    reverse2wholeimage(swap_result_ori_pic_list,swap_result_list, swap_result_matrix_list, crop_size, frame, logoclass,\
+                    reverse2wholeimage(swap_result_ori_pic_list,swap_result_list, swap_result_matrix_list, crop_size, frame,\
                         os.path.join(temp_results_dir, 'frame_{:0>7d}.jpg'.format(frame_index)),pasring_model =net,use_mask=use_mask, norm = spNorm)
                 else:
                     if not os.path.exists(temp_results_dir):
