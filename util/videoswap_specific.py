@@ -10,7 +10,6 @@ import moviepy.editor as mp
 from moviepy.editor import AudioFileClip, VideoFileClip 
 from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 import  time
-from util.add_watermark import watermark_image
 from util.norm import SpecificNorm
 import torch.nn.functional as F
 from parsing_model.model import BiSeNet
@@ -33,7 +32,6 @@ def video_swap(video_path, id_vetor,specific_person_id_nonorm,id_thres, swap_mod
         video_audio_clip = AudioFileClip(video_path)
 
     video = cv2.VideoCapture(video_path)
-    logoclass = watermark_image('./simswaplogo/simswaplogo.png')
     ret = True
     frame_index = 0
 
@@ -94,23 +92,17 @@ def video_swap(video_path, id_vetor,specific_person_id_nonorm,id_thres, swap_mod
                 if min_value < id_thres:
                     swap_result = swap_model(None, frame_align_crop_tenor_list[min_index], id_vetor, None, True)[0]
                 
-                    reverse2wholeimage([frame_align_crop_tenor_list[min_index]], [swap_result], [frame_mat_list[min_index]], crop_size, frame, logoclass,\
+                    reverse2wholeimage([frame_align_crop_tenor_list[min_index]], [swap_result], [frame_mat_list[min_index]], crop_size, frame,\
                         os.path.join(temp_results_dir, 'frame_{:0>7d}.jpg'.format(frame_index)),no_simswaplogo,pasring_model =net,use_mask= use_mask, norm = spNorm)
                 else:
                     if not os.path.exists(temp_results_dir):
                         os.mkdir(temp_results_dir)
                     frame = frame.astype(np.uint8)
-                    if not no_simswaplogo:
-                        frame = logoclass.apply_frames(frame)
-                    cv2.imwrite(os.path.join(temp_results_dir, 'frame_{:0>7d}.jpg'.format(frame_index)), frame)
 
             else:
                 if not os.path.exists(temp_results_dir):
                     os.mkdir(temp_results_dir)
                 frame = frame.astype(np.uint8)
-                if not no_simswaplogo:
-                    frame = logoclass.apply_frames(frame)
-                cv2.imwrite(os.path.join(temp_results_dir, 'frame_{:0>7d}.jpg'.format(frame_index)), frame)
         else:
             break
 

@@ -10,7 +10,6 @@ import moviepy.editor as mp
 from moviepy.editor import AudioFileClip, VideoFileClip 
 from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 import  time
-from util.add_watermark import watermark_image
 from util.norm import SpecificNorm
 import torch.nn.functional as F
 from parsing_model.model import BiSeNet
@@ -20,7 +19,7 @@ def _totensor(array):
     img = tensor.transpose(0, 1).transpose(0, 2).contiguous()
     return img.float().div(255)
 
-def video_swap(video_path, target_id_norm_list,source_specific_id_nonorm_list,id_thres, swap_model, detect_model, save_path, temp_results_dir='./temp_results', crop_size=224, no_simswaplogo = False,use_mask =False):
+def video_swap(video_path, target_id_norm_list,source_specific_id_nonorm_list,id_thres, swap_model, detect_model, save_path, temp_results_dir='./temp_results', crop_size=224, no_simswaplogo = True ,use_mask =False):
     video_forcheck = VideoFileClip(video_path)
     if video_forcheck.audio is None:
         no_audio = True
@@ -33,7 +32,6 @@ def video_swap(video_path, target_id_norm_list,source_specific_id_nonorm_list,id
         video_audio_clip = AudioFileClip(video_path)
 
     video = cv2.VideoCapture(video_path)
-    logoclass = watermark_image('./simswaplogo/simswaplogo.png')
     ret = True
     frame_index = 0
 
@@ -110,23 +108,17 @@ def video_swap(video_path, target_id_norm_list,source_specific_id_nonorm_list,id
 
                 if len(swap_result_list) !=0:
                     
-                    reverse2wholeimage(swap_result_ori_pic_list,swap_result_list, swap_result_matrix_list, crop_size, frame, logoclass,\
+                    reverse2wholeimage(swap_result_ori_pic_list,swap_result_list, swap_result_matrix_list, crop_size, frame,\
                         os.path.join(temp_results_dir, 'frame_{:0>7d}.jpg'.format(frame_index)),no_simswaplogo,pasring_model =net,use_mask=use_mask, norm = spNorm)
                 else:
                     if not os.path.exists(temp_results_dir):
                         os.mkdir(temp_results_dir)
                     frame = frame.astype(np.uint8)
-                    if not no_simswaplogo:
-                        frame = logoclass.apply_frames(frame)
-                    cv2.imwrite(os.path.join(temp_results_dir, 'frame_{:0>7d}.jpg'.format(frame_index)), frame)
 
             else:
                 if not os.path.exists(temp_results_dir):
                     os.mkdir(temp_results_dir)
                 frame = frame.astype(np.uint8)
-                if not no_simswaplogo:
-                    frame = logoclass.apply_frames(frame)
-                cv2.imwrite(os.path.join(temp_results_dir, 'frame_{:0>7d}.jpg'.format(frame_index)), frame)
         else:
             break
 
